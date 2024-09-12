@@ -1,0 +1,52 @@
+---
+- name: Add Jenkins repository key
+  apt_key:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+    state: present
+  become: yes
+
+- name: Add Jenkins repository
+  apt_repository:
+    repo: deb https://pkg.jenkins.io/debian-stable binary/
+    state: present
+  become: yes
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install Java
+  apt:
+    name: openjdk-11-jdk
+    state: present
+  become: yes
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: latest
+  become: yes
+
+- name: Ensure Jenkins is started and enabled
+  systemd:
+    name: jenkins
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Wait for Jenkins to start up
+  wait_for:
+    port: 8080
+    delay: 10
+    timeout: 300
+
+- name: Get Jenkins initial admin password
+  command: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: jenkins_initial_password
+  changed_when: false
+  become: yes
+
+- name: Print Jenkins initial admin password
+  debug:
+    var: jenkins_initial_password.stdout

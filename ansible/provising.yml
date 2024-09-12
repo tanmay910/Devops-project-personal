@@ -1,0 +1,22 @@
+---
+
+- hosts: 
+    - sonarQube
+  become: yes
+  roles:
+    - docker-setup
+    - sonarqube-direct
+
+- hosts:
+      - Nexus
+  become: yes
+  roles:
+     - docker-setup
+     - Nexus
+
+- hosts:
+    - jenkins
+  become: yes
+  roles:
+    - jenkins
+ 
